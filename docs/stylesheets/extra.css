@@ -1,0 +1,7 @@
+:root { --md-code-font: "Nanum Gothic Coding", "D2Coding", monospace; }
+.md-typeset { font-size: .82rem; line-height: 1.75; word-break: keep-all; }
+.md-typeset figure.fig { margin: 1.6em 0; }
+.md-typeset figure.fig pre { text-align: left; }
+.md-typeset figure.fig img { max-width: 100%; border: 1px solid var(--md-default-fg-color--lightest); border-radius: 4px; }
+.md-typeset figcaption { font-size: .78rem; color: var(--md-default-fg-color--light); margin-top: .4em; max-width: none; }
+.md-typeset pre > code { line-height: 1.5; }

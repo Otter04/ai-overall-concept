@@ -1,0 +1,49 @@
+site_name: AI 입력부터 출력까지
+site_description: AI 앱에 넣은 질문이 답이 되기까지를 따라가는 입문서
+docs_dir: docs
+theme:
+  name: material
+  language: ko
+  font:
+    text: Noto Sans KR
+    code: Nanum Gothic Coding
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      toggle: {icon: material/weather-night, name: 어두운 화면}
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      toggle: {icon: material/weather-sunny, name: 밝은 화면}
+  features:
+    - navigation.footer
+    - navigation.top
+    - toc.follow
+    - search.highlight
+plugins:
+  - search:
+      separator: '[\s\-\.\,\(\)\[\]/]+'
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.superfences
+  - pymdownx.details
+extra_css:
+  - stylesheets/extra.css
+nav:
+  - 처음에: index.md
+  - 1장 앱·모델·도구: ch01.md
+  - 2장 답변 만들기: ch02.md
+  - 3장 Attention: ch03.md
+  - 4장 Inference와 Reasoning: ch04.md
+  - 5장 RAG 자료 준비: ch05.md
+  - 6장 자료 찾기: ch06.md
+  - 7장 검색 결과로 답하기: ch07.md
+  - 8장 도구와 Skill: ch08.md
+  - 9장 Fine tuning: ch09.md
+  - 10장 전체 과정 다시 따라가기: ch10.md
