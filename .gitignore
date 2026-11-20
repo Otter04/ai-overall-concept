@@ -1,0 +1,4 @@
+site/
+docs/ch*.md
+docs/images/
+__pycache__/
