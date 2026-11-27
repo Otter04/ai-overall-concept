@@ -26,11 +26,47 @@ def convert_check(m):
     lines = [l[2:] if l.startswith('> ') else l[1:] for l in m.group(0).rstrip('\n').split('\n')[1:]]
     return '!!! question "이해 확인"\n\n' + '\n'.join('    ' + l for l in lines) + '\n'
 
+def convert_answer(m):
+    lines = [l[2:] if l.startswith('> ') else l[1:] for l in m.group(0).rstrip('\n').split('\n')[1:]]
+    return '??? note "답 보기"\n\n' + '\n'.join('    ' + l for l in lines) + '\n'
+
+def sec_link(cell):
+    # '2.3', '5장 도입, 5.1' 같은 절 번호를 해당 장 페이지의 절 링크로 바꾼다
+    def one(tok):
+        tok = tok.strip()
+        m = re.fullmatch(r'(\d+)\.(\d+(?:\.\d+)*)', tok)
+        if m:
+            return f'[{tok}](ch{int(m.group(1)):02d}.md#s{tok.replace(".", "-")})'
+        m = re.fullmatch(r'(\d+)장 도입', tok)
+        if m:
+            return f'[{tok}](ch{int(m.group(1)):02d}.md)'
+        return tok
+    return ', '.join(one(t) for t in cell.split(','))
+
+def link_glossary(text):
+    # 부록 A 표(용어 | 처음 설명한 절 | 뜻)의 둘째 칸만 바꾼다
+    out, on = [], False
+    for line in text.split('\n'):
+        if line.startswith('| 용어 | 처음 설명한 절 |'):
+            on = True
+        elif on and line.startswith('| ') and not line.startswith('|---'):
+            cells = line.split(' | ')
+            cells[1] = sec_link(cells[1])
+            line = ' | '.join(cells)
+        elif not line.startswith('|'):
+            on = False
+        out.append(line)
+    return '\n'.join(out)
+
 def convert(text):
     # 그림 블록 먼저(주석 표시를 쓰므로)
     text = re.sub(r'<!-- 그림 시작[^>]*-->\n(.*?)<!-- 그림 끝[^>]*-->', lambda m: convert_figure(m.group(1)), text, flags=re.S)
     text = re.sub(r'<!--.*?-->\n?', '', text, flags=re.S)
     text = re.sub(r'^> \*\*이해 확인\*\*\n(?:>.*\n?)+', convert_check, text, flags=re.M)
+    text = re.sub(r'^> \*\*답\*\*\n(?:>.*\n?)+', convert_answer, text, flags=re.M)
+    text = link_glossary(text)
+    # 번호가 있는 절 제목에 고정 id(s2-3 같은)를 붙여 다른 쪽에서 링크할 수 있게 한다
+    text = re.sub(r'^(#{2,4}) (\d+(?:\.\d+)+) (.*)$', lambda m: f'{m.group(1)} {m.group(2)} {m.group(3)} {{#s{m.group(2).replace(".", "-")}}}', text, flags=re.M)
     # 출처 번호 바로 뒤 괄호([1](작성일 …))가 링크로 읽히지 않게 한다
     text = re.sub(r'(?<![!\\])\[(\d+)\]\((?!https?:)', r'\\[\1\\](', text)
     text = re.sub(r'\n{3,}', '\n\n', text)
@@ -39,8 +75,6 @@ def convert(text):
 nav = []
 for f in sorted(glob.glob(os.path.join(SRC, '[01][0-9]_*.md'))):
     base = os.path.basename(f)
-    if base.startswith('11_'):  # 부록은 아직 뼈대
-        continue
     n = base[:2]
     s = convert(open(f, encoding='utf-8').read())
     open(os.path.join(OUT, f'ch{n}.md'), 'w', encoding='utf-8').write(s)
